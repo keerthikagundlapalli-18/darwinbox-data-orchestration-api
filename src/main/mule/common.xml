@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	<sub-flow name="common-http-request-flow" doc:id="b9d56488-9cc3-4c00-b776-ecd68646a97a" >
+		<logger level="INFO" doc:name="Before HTTP Request Log" doc:id="5c4cc1de-884f-4913-b81c-2c1bedfc5381" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "BEFORE REQUEST",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]'/>
+		<http:request method="#[vars.httpDetails.method]" doc:name="HTTP Request to External System" doc:id="ca667f71-c31c-45a7-bdfc-e2daf5714899" responseTimeout="${http.timeout}" config-ref="HTTP_Request_configuration" path="#[vars.httpDetails.path]">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+if (vars.httpDetails.body != null) 
+    vars.httpDetails.body 
+else 
+    payload]]]></http:body>
+			<http:headers ><![CDATA[#[{
+	"client_id": vars.httpDetails.clientId,
+	"client_secret": vars.httpDetails.clientSecret,
+	"Content-Type": "application/json"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  
+    "reportName" : vars.reportName default ""
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="After HTTP Request Log" doc:id="aea420de-0c9b-4480-add9-e8842035b087" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "AFTER REQUEST",&#10;	"statusCode": attributes.statusCode default "",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]'/>
+	</sub-flow>
+	
+</mule>

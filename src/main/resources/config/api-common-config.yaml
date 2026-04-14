@@ -1,0 +1,18 @@
+reconnection:
+  frequency: "3000"
+  attempts: "3"
+
+scheduler:
+  frequency: "0 0 0/1 1/1 * ? *"
+  startdelay: "0"
+  timezone: "IST"
+
+http:
+  host: "0.0.0.0"
+  port: "8082"
+  timeout: "640000"
+
+os:
+  maxentries: "1"
+  entryttl: "0"
+  expirationinterval: "60"

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="ec44d0f1-3859-4f94-ac15-99444c5471ce" basePath="#[vars.httpDetails.basePath]">
+		<http:request-connection host="#[vars.httpDetails.host]" port="#[vars.httpDetails.port]" protocol="HTTPS"/>
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="df7d43ca-3fc7-4200-b94e-6995161dc7de" file="config\api-${env}-config.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="fb61db9f-e996-44bf-960b-af43c2c5e2a4" file="config\api-common-config.yaml" />
+	<configuration doc:name="Configuration" doc:id="b8c47c0c-c080-4f78-8c5c-db5d34c6990b" defaultErrorHandler-ref="global-error-handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="c5c69e91-b71c-4bf3-999e-6cab72321186" file="config\vault\api-${env}-config.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="dfd0f03d-383f-4751-b026-71ec1f332bce" file="config\vault\api-${env}-config.yaml" key="${secret.key}"/>
+</mule>
