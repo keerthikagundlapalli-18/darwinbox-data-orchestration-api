@@ -14,4 +14,5 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 	<configuration doc:name="Configuration" doc:id="b8c47c0c-c080-4f78-8c5c-db5d34c6990b" defaultErrorHandler-ref="global-error-handler" />
 	<configuration-properties doc:name="Configuration properties" doc:id="c5c69e91-b71c-4bf3-999e-6cab72321186" file="config\vault\api-${env}-config.yaml" />
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="dfd0f03d-383f-4751-b026-71ec1f332bce" file="config\vault\api-${env}-config.yaml" key="${secret.key}"/>
+	<os:object-store name="Watermark_Object_Store" doc:name="Object store" doc:id="d4d49390-5141-4c1a-8bfe-ebb249b29379" maxEntries="${os.maxentries}" entryTtl="${os.entryttl}" expirationInterval="${os.expirationinterval}" />
 </mule>

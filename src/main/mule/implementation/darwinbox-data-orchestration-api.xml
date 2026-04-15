@@ -730,6 +730,16 @@ output application/json
 	"tracePoint": "START",
 	"timestamp": now()
 }]'/>
+		<try doc:name="Try" doc:id="5d249d21-6589-4d1f-b22c-0eac1b50a692">
+				<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="cb4acf20-ab02-4d2f-8c78-1f1e0b5b6128" key="lastProcessedTimeStamp" objectStore="Watermark_Object_Store" target="lastProcessedTimeStamp">
+					<os:default-value><![CDATA[#[null]]]></os:default-value>
+				</os:retrieve>
+				<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f5076a14-f398-4243-9e88-736dd2645fc9">
+						<set-variable value="#[null]" doc:name="Set Variable" doc:id="27bf7f1d-bfde-4613-9ba8-469497378430" variableName="lastProcessedTimeStamp" />
+					</on-error-continue>
+				</error-handler>
+			</try>
 		<ee:transform doc:name="Darwinbox-Employee History HTTP Details" doc:id="8a3325b4-b94a-4eb6-934a-6ec603a3e4a6">
 			<ee:message>
 			</ee:message>
@@ -745,12 +755,22 @@ output application/json
 	"method"      : Mule::p('darwinbox-employeehistory.method'),
 	"clientId"    : Mule::p('darwinbox-employeehistory.clientId'),
 	"clientSecret": Mule::p('secure::darwinbox-employeehistory.clientSecret'),
-	"body"	      : {
+	"body"	  : {
 	"api_key"	  : Mule::p('darwinbox-employeehistory.api_key')
 
-	}
+	}	
 }]]></ee:set-variable>
 				<ee:set-variable variableName="reportName"><![CDATA["employeeHistory"]]></ee:set-variable>
+				<ee:set-variable variableName="date" ><![CDATA[%dw 2.0
+output application/json
+
+---
+if (vars.lastProcessedTimeStamp == null)
+{"start_date" : "1990-01-01" , 
+"end_date" : now() as Date }
+else
+{"start_date" : vars.lastProcessedTimeStamp , 
+"end_date" : now() as Date }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="common-http-request-flow" doc:id="8a3cf552-3b3a-414e-b2e8-6160cef63495" name="common-http-request-flow"/>
@@ -802,6 +822,9 @@ output application/json
 	"contentSize": sizeOf(payload) default 0
 }]'/>
 				<flow-ref doc:name="common-http-request-flow" doc:id="00269915-301a-4780-a50d-0b2b99a70f10" name="common-http-request-flow"/>
+				<os:store doc:name="Update Watermark After Successful Processing" doc:id="6077d59e-8b93-4ba3-9975-b40cee6d077e" key="lastProcessedTimeStamp" objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#[now() as Date]]]></os:value>
+				</os:store>
 				<logger level="INFO" doc:name="End Main Log" doc:id="8c14d6d5-f5dd-473b-8249-0805a6e4ac5e" message='#[output application/json
 ---
 {

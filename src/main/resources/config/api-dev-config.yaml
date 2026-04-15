@@ -1,5 +1,5 @@
 darwinbox-attrition:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/attrition/employee"
@@ -10,7 +10,7 @@ darwinbox-attrition:
   
   
 darwinbox-masteremployee:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/masterapi/employee"
@@ -21,7 +21,7 @@ darwinbox-masteremployee:
 
 
 darwinbox-joblevel:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/UpdateEmployeeDetails/getemployeejobleveldata"
@@ -31,7 +31,7 @@ darwinbox-joblevel:
   
   
 darwinbox-learningprogram:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/getCustomArraySection"
@@ -43,7 +43,7 @@ darwinbox-learningprogram:
   status: "1"
   
 darwinbox-pastworkdetails:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/orgmasterapi/getPastWorkDetails"
@@ -52,7 +52,7 @@ darwinbox-pastworkdetails:
   api_key: "c656a08d60bf519a9b1c82cd227408435dd1ad1838626e9155e280a3967ec5a4ae202f606773461aa065a3f4e3d4cc56f696c88260739f04b41e3fa65d51a37f"
 
 darwinbox-lopapi:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/attendanceDataApi/Daily"
@@ -61,7 +61,7 @@ darwinbox-lopapi:
   api_key: "c656a08d60bf519a9b1c82cd227408435dd1ad1838626e9155e280a3967ec5a4ae202f606773461aa065a3f4e3d4cc56f696c88260739f04b41e3fa65d51a37f"
 
 darwinbox-employeehistory:
-  host: "gmmco-darwinbox-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
+  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
   basePath: "/api"
   path: "/employeehistory"
