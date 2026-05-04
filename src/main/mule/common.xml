@@ -6,13 +6,9 @@
 	xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 	
-	<sub-flow name="common-http-request-flow" doc:id="b9d56488-9cc3-4c00-b776-ecd68646a97a" >
-		<logger level="INFO" doc:name="Before HTTP Request Log" doc:id="5c4cc1de-884f-4913-b81c-2c1bedfc5381" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "BEFORE REQUEST",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]' />
-		<http:request method="#[vars.httpDetails.method]" doc:name="HTTP Request to External System" doc:id="ca667f71-c31c-45a7-bdfc-e2daf5714899" responseTimeout="${http.timeout}" config-ref="HTTP_Request_configuration" path="#[vars.httpDetails.path]">
-			<http:body ><![CDATA[#[%dw 2.0
-output application/json
----
-vars.httpDetails.body]]]></http:body>
+	<sub-flow name="common-http-request-flow" doc:id="7449ba2c-da37-4435-8944-6859f209de2a" >
+		<logger level="INFO" doc:name="Before HTTP Request Log" doc:id="8b7ace34-9728-4c37-a3f2-2c2c54966b04" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "BEFORE REQUEST",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]'/>
+		<http:request method="#[vars.httpDetails.method]" doc:name="HTTP Request to External System" doc:id="0108e1ca-8a6c-4dea-80e4-d721d8982b26" responseTimeout="${http.timeout}" config-ref="HTTP_Request_configuration" path="#[vars.httpDetails.path]">
 			<http:headers ><![CDATA[#[{
 	"client_id": vars.httpDetails.clientId,
 	"client_secret": vars.httpDetails.clientSecret,
@@ -22,13 +18,11 @@ vars.httpDetails.body]]]></http:body>
 output application/json
 ---
 {
-  
-    "reportName" : vars.reportName default "",
-    "start_date" : vars.date.start_date,
-    "end_date"   : vars.date.end_date	
+    //"query"      : vars.query default "",
+    "reportName" : vars.reportName default ""
 }]]]></http:query-params>
 		</http:request>
-		<logger level="INFO" doc:name="After HTTP Request Log" doc:id="aea420de-0c9b-4480-add9-e8842035b087" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "AFTER REQUEST",&#10;	"statusCode": attributes.statusCode default "",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]'/>
+		<logger level="INFO" doc:name="After HTTP Request Log" doc:id="8e3c6c00-6e5f-4807-9e3b-9e418310c948" message='#[output application/json&#10;---&#10;{&#10;	"flowName": "scheduler-scdp-orchestration-main-flow",&#10;	"tracePoint": "AFTER REQUEST",&#10;	"statusCode": attributes.statusCode default "",&#10;	"contentSize": sizeOf(payload) default 0&#10;}]'/>
 	</sub-flow>
 	
 </mule>

@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+		http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+	<!-- ==================== 1. FIRST AID FLOW ==================== -->
+	<flow name="scheduler-gmmco-shield-firstaid-orchestration-flow" doc:id="15cf6b20-8cba-421a-8822-9a89e7dfb46c">
+		<scheduler doc:name="Job run every one hour" doc:id="43032fce-4b44-46bb-a904-601109990411">
+			<scheduling-strategy>
+				<cron expression="${scheduler.frequency}" timeZone="${scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Main Log" doc:id="3b706530-41d3-4970-bfb6-1c92b6813a8e" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-firstaid-orchestration-flow started",
+	"tracePoint": "START",
+	"timestamp": now()
+}]'/>
+		<!-- [STUDIO:"Try"]<try doc:name="Try" doc:id="2ca1683e-60ef-48d7-afb1-6e93e858aac3">
+			<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="de6255f5-9729-413e-97fa-640b3552b240"
+				key="firstaid_lastProcessedTimeStamp"
+				objectStore="Watermark_Object_Store"
+				target="lastProcessedTimeStamp">
+				<os:default-value><![CDATA[#[null&#93;&#93;&#93;></os:default-value>
+			</os:retrieve>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4faf8a94-e546-423d-b991-e7b4f9d569d4">
+					<set-variable value="#[null&#93;" doc:name="Set lastProcessedTimeStamp to null" doc:id="0419efe1-a99c-4486-ba3c-9be47388286c" variableName="lastProcessedTimeStamp"/>
+				</on-error-continue>
+			</error-handler>
+		</try> [STUDIO] -->
+		<ee:transform doc:name="GmmcoShield-FirstAid HTTP Details" doc:id="5394f8d7-e378-4191-b8d4-0d611c0fbb15">
+			<ee:message/>
+			<ee:variables>
+				<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('gmmco-shield.host'),
+	"port"        : Mule::p('gmmco-shield.port'),
+	"basePath"    : Mule::p('gmmco-shield.basePath'),
+	"path"        : Mule::p('gmmco-shield.path'),
+	"method"      : Mule::p('gmmco-shield.method'),
+	//"query"       : vars.query,
+	"clientId"    : Mule::p('gmmco-shield.clientId'),
+	"clientSecret": Mule::p('secure::gmmco-shield.clientSecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="reportName"><![CDATA["firstAid"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="common-http-request-flow" doc:id="fdb12976-be78-4657-91f2-1704860deebf" name="common-http-request-flow"/>
+		<logger level="INFO" doc:name="After GmmcoShield FirstAid Response Log" doc:id="fc16d773-8fef-40b2-b759-ac63c1c611fa" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-firstaid-orchestration-flow",
+	"tracePoint": "AFTER SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+		<choice doc:name="Check if FirstAid Data Exists" doc:id="0e15ce73-c3e6-4b87-bbeb-5d320b6f8f5b">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Databricks FirstAid HTTP Details" doc:id="17ff66d5-30db-4fcc-add8-445f34f18aa7">
+					<ee:message/>
+					<ee:variables>
+						<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('databricks-shield.host'),
+	"port"        : Mule::p('databricks-shield.port'),
+	"basePath"    : Mule::p('databricks-shield.basePath'),
+	"path"        : Mule::p('databricks-shield.path'),
+	"method"      : Mule::p('databricks-shield.method'),
+	"clientId"    : Mule::p('databricks-shield.clientId'),
+	"clientSecret": Mule::p('secure::databricks-shield.clientSecret')
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Before Databricks Upload Log" doc:id="8868b46e-f308-4a75-864b-e5cceb5d4d3f" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-firstaid-orchestration-flow",
+	"tracePoint": "BEFORE DATALAKE SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+				<flow-ref doc:name="common-http-request-flow" doc:id="90e1cf3f-3d60-4b77-a97c-86fda21211fa" name="common-http-request-flow"/>
+				<!-- [STUDIO:"Update Watermark After Successful Processing"]<os:store doc:name="Update Watermark After Successful Processing" doc:id="cc4bbe58-f48b-4cae-8724-5e926389b1b4"
+					key="firstaid_lastProcessedTimeStamp"
+					objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#["'" ++ (now() as DateTime as String {format: "yyyy-MM-dd HH:mm:ss"}) ++ "'"&#93;&#93;&#93;></os:value>
+				</os:store> [STUDIO] -->
+				<logger level="INFO" doc:name="End Main Log" doc:id="07f0902f-81f1-4138-a6f2-9c9074271dfb" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-firstaid-orchestration-flow End",
+	"status": "Processed successfully..",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log No Data Found" doc:id="af071043-f73c-428b-99a1-b4efe67852e5" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-firstaid-orchestration-flow End",
+	"status": "No Data",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="global-error-handler"/>
+	</flow>
+
+	<!-- ==================== 2. NEAR MISS / HAZARD REPORTING FLOW ==================== -->
+	<flow name="scheduler-gmmco-shield-nearmiss-orchestration-flow" doc:id="1fc81576-0d42-42cb-ac92-454fe8e06064">
+		<scheduler doc:name="Job run every one hour" doc:id="4b343718-50e9-436a-8845-79636cab901e">
+			<scheduling-strategy>
+				<cron expression="${scheduler.frequency}" timeZone="${scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Main Log" doc:id="a2a96b01-935d-418a-bc0f-83f0d583c22d" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-nearmiss-orchestration-flow started",
+	"tracePoint": "START",
+	"timestamp": now()
+}]'/>
+		<!-- [STUDIO:"Try"]<try doc:name="Try" doc:id="e1efa293-26d1-4454-ad6c-37127d2a14b6">
+			<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="d5188f5e-03d3-465c-9f01-555be0f9d68b"
+				key="nearmiss_lastProcessedTimeStamp"
+				objectStore="Watermark_Object_Store"
+				target="lastProcessedTimeStamp">
+				<os:default-value><![CDATA[#[null&#93;&#93;&#93;></os:default-value>
+			</os:retrieve>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="92c1776e-eccf-4dec-8bb4-eeed83dd0291">
+					<set-variable value="#[null&#93;" doc:name="Set lastProcessedTimeStamp to null" doc:id="27bbf036-97cd-472a-a6d2-4e10234b64d5" variableName="lastProcessedTimeStamp"/>
+				</on-error-continue>
+			</error-handler>
+		</try> [STUDIO] -->
+		<ee:transform doc:name="GmmcoShield-NearMiss HTTP Details" doc:id="d86e4a43-9dc6-4798-b164-a60fd0a9d41d">
+			<ee:message/>
+			<ee:variables>
+				<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('gmmco-shield.host'),
+	"port"        : Mule::p('gmmco-shield.port'),
+	"basePath"    : Mule::p('gmmco-shield.basePath'),
+	"path"        : Mule::p('gmmco-shield.path'),
+	"method"      : Mule::p('gmmco-shield.method'),
+	//"query"       : vars.query,
+	"clientId"    : Mule::p('gmmco-shield.clientId'),
+	"clientSecret": Mule::p('secure::gmmco-shield.clientSecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="reportName"><![CDATA["nearMiss"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="common-http-request-flow" doc:id="59d2cd38-3d9e-449a-9253-f6e5635c703d" name="common-http-request-flow"/>
+		<logger level="INFO" doc:name="After GmmcoShield NearMiss Response Log" doc:id="2535f512-0d33-4154-936a-e2b539c86d41" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-nearmiss-orchestration-flow",
+	"tracePoint": "AFTER SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+		<choice doc:name="Check if NearMiss Data Exists" doc:id="5f140866-19e7-4ce0-a66c-acfb79244927">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Databricks NearMiss HTTP Details" doc:id="ebead277-ad04-43d9-a776-541970bce069">
+					<ee:message/>
+					<ee:variables>
+						<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('databricks-shield.host'),
+	"port"        : Mule::p('databricks-shield.port'),
+	"basePath"    : Mule::p('databricks-shield.basePath'),
+	"path"        : Mule::p('databricks-shield.path'),
+	"method"      : Mule::p('databricks-shield.method'),
+	"clientId"    : Mule::p('databricks-shield.clientId'),
+	"clientSecret": Mule::p('secure::databricks-shield.clientSecret')
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Before Databricks Upload Log" doc:id="3b8e76b8-9046-4ede-98f4-cbfc7e2222d9" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-nearmiss-orchestration-flow",
+	"tracePoint": "BEFORE DATALAKE SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+				<flow-ref doc:name="common-http-request-flow" doc:id="4d2122ad-6243-44bc-9ef2-f29f385e5dd3" name="common-http-request-flow"/>
+				<!-- [STUDIO:"Update Watermark After Successful Processing"]<os:store doc:name="Update Watermark After Successful Processing" doc:id="7db0b80b-305f-4974-96db-cf14481b7c43"
+					key="nearmiss_lastProcessedTimeStamp"
+					objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#["'" ++ (now() as DateTime as String {format: "yyyy-MM-dd HH:mm:ss"}) ++ "'"&#93;&#93;&#93;></os:value>
+				</os:store> [STUDIO] -->
+				<logger level="INFO" doc:name="End Main Log" doc:id="0c82496b-24f5-44c4-8fdc-7e10c5c083dc" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-nearmiss-orchestration-flow End",
+	"status": "Processed successfully..",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log No Data Found" doc:id="abafdc38-a058-4832-b4ce-4cf2591c5882" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-nearmiss-orchestration-flow End",
+	"status": "No Data",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="global-error-handler"/>
+	</flow>
+
+	<!-- ==================== 3. TOOLS AUDIT FLOW ==================== -->
+	<flow name="scheduler-gmmco-shield-toolsaudit-orchestration-flow" doc:id="4ba81dfc-ac6a-4509-ad91-91b5f9895b30">
+		<scheduler doc:name="Job run every one hour" doc:id="c6ccc30b-8b74-4e12-bb97-437243a03aa9">
+			<scheduling-strategy>
+				<cron expression="${scheduler.frequency}" timeZone="${scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Main Log" doc:id="8c1cf50e-c81d-40bc-aadf-2101a0846246" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolsaudit-orchestration-flow started",
+	"tracePoint": "START",
+	"timestamp": now()
+}]'/>
+		<!-- [STUDIO:"Try"]<try doc:name="Try" doc:id="3de4ec9d-b3a4-4a4e-857d-9537e5f0a354">
+			<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="05291044-2eaf-491c-b1a7-53cd4c57506a"
+				key="toolsaudit_lastProcessedTimeStamp"
+				objectStore="Watermark_Object_Store"
+				target="lastProcessedTimeStamp">
+				<os:default-value><![CDATA[#[null&#93;&#93;&#93;></os:default-value>
+			</os:retrieve>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="15840e39-1cff-46ff-b95b-84d0b5096ca6">
+					<set-variable value="#[null&#93;" doc:name="Set lastProcessedTimeStamp to null" doc:id="7ead182f-f83b-41f6-a7ab-311f86f74bd6" variableName="lastProcessedTimeStamp"/>
+				</on-error-continue>
+			</error-handler>
+		</try> [STUDIO] -->
+		<ee:transform doc:name="GmmcoShield-ToolsAudit HTTP Details" doc:id="97a0d14c-c00d-49b4-b85f-45ca072dd20a">
+			<ee:message/>
+			<ee:variables>
+				<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('gmmco-shield.host'),
+	"port"        : Mule::p('gmmco-shield.port'),
+	"basePath"    : Mule::p('gmmco-shield.basePath'),
+	"path"        : Mule::p('gmmco-shield.path'),
+	"method"      : Mule::p('gmmco-shield.method'),
+	//"query"       : vars.query,
+	"clientId"    : Mule::p('gmmco-shield.clientId'),
+	"clientSecret": Mule::p('secure::gmmco-shield.clientSecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="reportName"><![CDATA["toolsAudit"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="common-http-request-flow" doc:id="c7f10476-0873-4317-a3e1-e7447537bbb3" name="common-http-request-flow"/>
+		<logger level="INFO" doc:name="After GmmcoShield ToolsAudit Response Log" doc:id="24c91c72-aa8a-49da-8fe7-2ceaae50050e" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolsaudit-orchestration-flow",
+	"tracePoint": "AFTER SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+		<choice doc:name="Check if ToolsAudit Data Exists" doc:id="d5db87e7-1c2a-44e8-ae17-fb70bcb6724c">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Databricks ToolsAudit HTTP Details" doc:id="f93e681c-74c0-43e3-9ee7-327a3e74a3fb">
+					<ee:message/>
+					<ee:variables>
+						<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('databricks-shield.host'),
+	"port"        : Mule::p('databricks-shield.port'),
+	"basePath"    : Mule::p('databricks-shield.basePath'),
+	"path"        : Mule::p('databricks-shield.path'),
+	"method"      : Mule::p('databricks-shield.method'),
+	"clientId"    : Mule::p('databricks-shield.clientId'),
+	"clientSecret": Mule::p('secure::databricks-shield.clientSecret')
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Before Databricks Upload Log" doc:id="e57995b9-68ad-47b3-933a-4515a41e6f2f" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolsaudit-orchestration-flow",
+	"tracePoint": "BEFORE DATALAKE SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+				<flow-ref doc:name="common-http-request-flow" doc:id="3958dd2b-25b8-45c3-8d2e-5d0212f60a4c" name="common-http-request-flow"/>
+				<!-- [STUDIO:"Update Watermark After Successful Processing"]<os:store doc:name="Update Watermark After Successful Processing" doc:id="fcc2a544-fca6-4ba8-91a1-bfea4b71a6a0"
+					key="toolsaudit_lastProcessedTimeStamp"
+					objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#["'" ++ (now() as DateTime as String {format: "yyyy-MM-dd HH:mm:ss"}) ++ "'"&#93;&#93;&#93;></os:value>
+				</os:store> [STUDIO] -->
+				<logger level="INFO" doc:name="End Main Log" doc:id="61563ad6-4728-43d9-94fc-d642e3f4082a" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolsaudit-orchestration-flow End",
+	"status": "Processed successfully..",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log No Data Found" doc:id="b62b0d64-79bc-4ce0-8f0d-34fea2fbf39d" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolsaudit-orchestration-flow End",
+	"status": "No Data",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="global-error-handler"/>
+	</flow>
+
+	<!-- ==================== 4. SAFETY AUDIT FLOW ==================== -->
+	<flow name="scheduler-gmmco-shield-safetyaudit-orchestration-flow" doc:id="0399c346-81eb-443e-a849-0086985fd053">
+		<scheduler doc:name="Job run every one hour" doc:id="75c93e36-0e1a-44a3-85ab-4101e504c524">
+			<scheduling-strategy>
+				<cron expression="${scheduler.frequency}" timeZone="${scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Main Log" doc:id="2c16af2e-f025-4eb7-8bee-8c59167655f4" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-safetyaudit-orchestration-flow started",
+	"tracePoint": "START",
+	"timestamp": now()
+}]'/>
+		<!-- [STUDIO:"Try"]<try doc:name="Try" doc:id="f7520b06-7194-489a-af4f-ac3fc0560371">
+			<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="37d4a0dc-a29e-4234-8d47-5fa470f4677c"
+				key="safetyaudit_lastProcessedTimeStamp"
+				objectStore="Watermark_Object_Store"
+				target="lastProcessedTimeStamp">
+				<os:default-value><![CDATA[#[null&#93;&#93;&#93;></os:default-value>
+			</os:retrieve>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="71ca8732-f529-4f96-8a6b-d2b2c2d4a3ac">
+					<set-variable value="#[null&#93;" doc:name="Set lastProcessedTimeStamp to null" doc:id="b12d5a5f-d687-4387-9bfa-6e6ba3c15cc3" variableName="lastProcessedTimeStamp"/>
+				</on-error-continue>
+			</error-handler>
+		</try> [STUDIO] -->
+		<ee:transform doc:name="GmmcoShield-SafetyAudit HTTP Details" doc:id="47ab2932-5bee-4dc5-9e21-6fda38f44b51">
+			<ee:message/>
+			<ee:variables>
+				<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('gmmco-shield.host'),
+	"port"        : Mule::p('gmmco-shield.port'),
+	"basePath"    : Mule::p('gmmco-shield.basePath'),
+	"path"        : Mule::p('gmmco-shield.path'),
+	"method"      : Mule::p('gmmco-shield.method'),
+	//"query"       : vars.query,
+	"clientId"    : Mule::p('gmmco-shield.clientId'),
+	"clientSecret": Mule::p('secure::gmmco-shield.clientSecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="reportName"><![CDATA["safetyAudit"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="common-http-request-flow" doc:id="bda89f57-4a08-43f9-abbd-dd813637d417" name="common-http-request-flow"/>
+		<logger level="INFO" doc:name="After GmmcoShield SafetyAudit Response Log" doc:id="a7bf2150-3592-43dd-8baf-4667d6fb30ee" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-safetyaudit-orchestration-flow",
+	"tracePoint": "AFTER SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+		<choice doc:name="Check if SafetyAudit Data Exists" doc:id="4c5794d9-fd8e-454e-b056-ea96799658af">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Databricks SafetyAudit HTTP Details" doc:id="b4a67dd7-7615-45f5-96cf-890712764598">
+					<ee:message/>
+					<ee:variables>
+						<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('databricks-shield.host'),
+	"port"        : Mule::p('databricks-shield.port'),
+	"basePath"    : Mule::p('databricks-shield.basePath'),
+	"path"        : Mule::p('databricks-shield.path'),
+	"method"      : Mule::p('databricks-shield.method'),
+	"clientId"    : Mule::p('databricks-shield.clientId'),
+	"clientSecret": Mule::p('secure::databricks-shield.clientSecret')
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Before Databricks Upload Log" doc:id="17e2f30b-c6db-45b4-b8af-d23bbb1cf74b" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-safetyaudit-orchestration-flow",
+	"tracePoint": "BEFORE DATALAKE SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+				<flow-ref doc:name="common-http-request-flow" doc:id="a3358b6e-3a3f-41e0-a956-8edd0f218e85" name="common-http-request-flow"/>
+				<!-- [STUDIO:"Update Watermark After Successful Processing"]<os:store doc:name="Update Watermark After Successful Processing" doc:id="8c81e59f-8cf6-449b-a8db-5f66c9a7db4c"
+					key="safetyaudit_lastProcessedTimeStamp"
+					objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#["'" ++ (now() as DateTime as String {format: "yyyy-MM-dd HH:mm:ss"}) ++ "'"&#93;&#93;&#93;></os:value>
+				</os:store> [STUDIO] -->
+				<logger level="INFO" doc:name="End Main Log" doc:id="ed13e4e6-ff37-4016-bab9-692adb5ebb19" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-safetyaudit-orchestration-flow End",
+	"status": "Processed successfully..",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log No Data Found" doc:id="279e11bd-0f09-4975-ba3a-e2facb69349c" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-safetyaudit-orchestration-flow End",
+	"status": "No Data",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="global-error-handler"/>
+	</flow>
+
+	<!-- ==================== 5. TOOLBOX TALKS FLOW ==================== -->
+	<flow name="scheduler-gmmco-shield-toolboxtalks-orchestration-flow" doc:id="d11189b7-ca3b-4eb1-96c0-e2fd2ccb2dac">
+		<scheduler doc:name="Job run every one hour" doc:id="832f785a-946b-4eec-82d1-4e3a3f40add7">
+			<scheduling-strategy>
+				<cron expression="${scheduler.frequency}" timeZone="${scheduler.timezone}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Start Main Log" doc:id="369d8cf4-171f-4b2d-84bf-30d9d481ed9b" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolboxtalks-orchestration-flow started",
+	"tracePoint": "START",
+	"timestamp": now()
+}]'/>
+		<!-- [STUDIO:"Try"]<try doc:name="Try" doc:id="8c60dfb8-2dbd-4af4-93c1-0dbd8e0373f3">
+			<os:retrieve doc:name="Retrieve Last Processed Timestamp" doc:id="4b8a0698-977b-406b-a371-a621960b2cb6"
+				key="toolboxtalks_lastProcessedTimeStamp"
+				objectStore="Watermark_Object_Store"
+				target="lastProcessedTimeStamp">
+				<os:default-value><![CDATA[#[null&#93;&#93;&#93;></os:default-value>
+			</os:retrieve>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="32ec65fa-8cb8-4dbb-89c3-7125c7a82d61">
+					<set-variable value="#[null&#93;" doc:name="Set lastProcessedTimeStamp to null" doc:id="1b9762d4-b77e-4b85-bc01-b0267a82dd30" variableName="lastProcessedTimeStamp"/>
+				</on-error-continue>
+			</error-handler>
+		</try> [STUDIO] -->
+		<ee:transform doc:name="GmmcoShield-ToolboxTalks HTTP Details" doc:id="742610a0-2a0a-4efd-9187-ad4cfcf91506">
+			<ee:message/>
+			<ee:variables>
+				<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('gmmco-shield.host'),
+	"port"        : Mule::p('gmmco-shield.port'),
+	"basePath"    : Mule::p('gmmco-shield.basePath'),
+	"path"        : Mule::p('gmmco-shield.path'),
+	"method"      : Mule::p('gmmco-shield.method'),
+	//"query"       : vars.query,
+	"clientId"    : Mule::p('gmmco-shield.clientId'),
+	"clientSecret": Mule::p('secure::gmmco-shield.clientSecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="reportName"><![CDATA["toolboxTalks"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="common-http-request-flow" doc:id="f870cd0f-7792-46f1-8271-da9dc6df6ed0" name="common-http-request-flow"/>
+		<logger level="INFO" doc:name="After GmmcoShield ToolboxTalks Response Log" doc:id="7d3b4878-aa1e-4939-809e-1051736e948b" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolboxtalks-orchestration-flow",
+	"tracePoint": "AFTER SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+		<choice doc:name="Check if ToolboxTalks Data Exists" doc:id="427f24b6-4f35-4067-9241-d1c0382534b6">
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="Databricks ToolboxTalks HTTP Details" doc:id="8181e7b3-4e90-4006-8a3b-c8bfdf9bfd38">
+					<ee:message/>
+					<ee:variables>
+						<ee:set-variable variableName="httpDetails"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"host"        : Mule::p('databricks-shield.host'),
+	"port"        : Mule::p('databricks-shield.port'),
+	"basePath"    : Mule::p('databricks-shield.basePath'),
+	"path"        : Mule::p('databricks-shield.path'),
+	"method"      : Mule::p('databricks-shield.method'),
+	"clientId"    : Mule::p('databricks-shield.clientId'),
+	"clientSecret": Mule::p('secure::databricks-shield.clientSecret')
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Before Databricks Upload Log" doc:id="7ead8e49-34ee-4eaf-9743-0fc7089fd978" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolboxtalks-orchestration-flow",
+	"tracePoint": "BEFORE DATALAKE SYS API REQUEST",
+	"contentSize": sizeOf(payload) default 0
+}]'/>
+				<flow-ref doc:name="common-http-request-flow" doc:id="483b7111-4778-4e7c-ad20-bad2550e20a4" name="common-http-request-flow"/>
+				<!-- [STUDIO:"Update Watermark After Successful Processing"]<os:store doc:name="Update Watermark After Successful Processing" doc:id="7a422d1c-c159-498e-afe9-cd0fb6248133"
+					key="toolboxtalks_lastProcessedTimeStamp"
+					objectStore="Watermark_Object_Store">
+					<os:value><![CDATA[#["'" ++ (now() as DateTime as String {format: "yyyy-MM-dd HH:mm:ss"}) ++ "'"&#93;&#93;&#93;></os:value>
+				</os:store> [STUDIO] -->
+				<logger level="INFO" doc:name="End Main Log" doc:id="1cbb752e-2159-433f-a918-27458dd93ad3" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolboxtalks-orchestration-flow End",
+	"status": "Processed successfully..",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Log No Data Found" doc:id="1c8d7b2c-6dc7-4237-be70-41a9b1e6244e" message='#[output application/json
+---
+{
+	"flowName": "scheduler-gmmco-shield-toolboxtalks-orchestration-flow End",
+	"status": "No Data",
+	"tracePoint": "END",
+	"timestamp": now()
+}]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="global-error-handler"/>
+	</flow>
+
+</mule>

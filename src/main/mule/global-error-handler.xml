@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
 	<error-handler name="global-error-handler" 
-	               doc:id="07e1fd74-f1cc-4b10-bf33-64e765e469d4" 
+	               doc:id="4d92cb94-5d41-4878-afcc-421a50843cca" 
 	               doc:name="Global Error Handler">
 		
 		<!-- HTTP Connectivity Errors -->

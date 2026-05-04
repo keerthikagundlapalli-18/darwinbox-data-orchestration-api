@@ -1,81 +1,19 @@
-darwinbox-attrition:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/attrition/employee"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "56ef40926bcca366c312e6d3ba88448adb054230883f5cff1de7d45a1f9714c1705da996f318bc56b99f4004fef6bee2bea45ad9ee08bdacc3555263ff82aa22"
-  datasetKey: "e2de033cf95fd8e89096205391e6cfe9c5851ca1eb5c49106c42a1b4fc0cc7af6d3836c544fd43c333b2ca4f27ab81507a5fceb38da502b114c563802b6f6202"
+
+
+
   
-  
-darwinbox-masteremployee:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
+gmmco-shield:
+  host: "shield-databricks-sys-api-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
+  clientId: "ca84a09fe412411f9fbd462631040166"
   basePath: "/api"
-  path: "/masterapi/employee"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "855a76a28ad9437a3aaed3b13b738a387f468a512aff4ec16a61cfad820913f274261824d6b57f774414bdeb4835a93ba7f72abaa66d8b666ae931a4fd436bdb"
-  datasetKey: "956040c438a8cec64f87a8f780d589b3003086e2095ee24100f89e9604bb417204c9a23846f611127c04f4b70366b3ab548bb961a8402de700cd1245307e85db"
+  path: "/nearmiss"
+  method: "GET"
 
-
-darwinbox-joblevel:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
+databricks-shield:
+  host: "databricks-all-reports-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
   port: "443"
+  clientId: "670d3af4d2764a63afdda14e35281964"
   basePath: "/api"
-  path: "/UpdateEmployeeDetails/getemployeejobleveldata"
+  path: "/upload"
   method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "44442c29ac38f6080042a300d312522f58821d29c0d46ff098ec338e46a72fbde9bf0d947f7555ed4f50780d55972af94678e9136f0d75837ef7067630b36496"
-  
-  
-darwinbox-learningprogram:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/getCustomArraySection"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "e1b98663cb3173d166d3061b34ccd42a2a48f25445644ba20f9cbad8551fe54d1313649e39479e52beeeb9f5f5ac33bb052e3fffe246150caeee18127f271774"
-  datasetKey: ""
-  section: "Learning Program Details"
-  status: "1"
-  
-darwinbox-pastworkdetails:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/orgmasterapi/getPastWorkDetails"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "c656a08d60bf519a9b1c82cd227408435dd1ad1838626e9155e280a3967ec5a4ae202f606773461aa065a3f4e3d4cc56f696c88260739f04b41e3fa65d51a37f"
-
-darwinbox-lopapi:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/attendanceDataApi/Daily"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "c656a08d60bf519a9b1c82cd227408435dd1ad1838626e9155e280a3967ec5a4ae202f606773461aa065a3f4e3d4cc56f696c88260739f04b41e3fa65d51a37f"
-
-darwinbox-employeehistory:
-  host: "gmmco-darwinbox-sys-api-dev-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/employeehistory"
-  method: "POST"
-  clientId: "0f351b159e524424ab9ac00183d2eac6"
-  api_key: "e17df8fdc7a4e609096badffde5f4fbdc182db2882869dfebd0f11d95020b6b9d8659b0e1e83de941a3e33eab232b06342def1f248b4d6d7505dc8f84ae2d2ad"
-
-
-
-databricks:
-  host: "databricks-reports-sys-app-plkk5q.m98vj.sgp-s1.cloudhub.io"
-  port: "443"
-  basePath: "/api"
-  path: "/darwinbox"
-  method: "POST"
-  clientId: "877fce5e6eef4451a1b93f23565f5a4c"
-

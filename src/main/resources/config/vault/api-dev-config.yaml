@@ -1,25 +1,6 @@
-darwinbox-attrition:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-masteremployee:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-joblevel:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-learningprogram:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-pastworkdetails:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-lopapi:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
-
-darwinbox-employeehistory:
-  clientSecret: "![GIExyXBYceKmXBmt9oYbMOvm1/WZJT4Fm1RCO7nH9KL/66j0GCWMLqgAjWH23lcR]"
+gmmco-shield:
+  clientSecret: "![+y30Oq+JS0Gylsfee1pfO2US4dbTffQkWOvvQO07c0LKkx9tkRWsoTPhpC9uUozr]"
   
   
-databricks:
-  clientSecret: "![eBznea6GRg8Tudz5C4+XexQi9BtfIg+er0LM/xHwvTwbh6lgnqtkFzLGXjIoPwy1]"
-  
+databricks-shield:
+   clientSecret: "![eBznea6GRg8Tudz5C4+XexQi9BtfIg+er0LM/xHwvTwbh6lgnqtkFzLGXjIoPwy1]"

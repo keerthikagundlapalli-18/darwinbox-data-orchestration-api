@@ -1,128 +1,15 @@
-darwinbox-attrition:
+gmmco-shield:
   host: ""
-  port: ""
+  port: "443"
   clientId: ""
-  basePath: ""
+  basePath: "/api"
   path: ""
   method: "GET"
 
-darwinbox-attendance:
+databricks-shield:
   host: ""
-  port: ""
+  port: "443"
   clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-employee:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-joblevel:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-learningprogram:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-pastworkdetails:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-topapi:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-darwinbox-employeehistory:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "GET"
-
-databricks-attrition:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
+  basePath: "/api"
+  path: "/upload"
   method: "POST"
-
-databricks-attendance:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-employee:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-joblevel:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-learningprogram:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-pastworkdetails:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-topapi:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
-databricks-employeehistory:
-  host: ""
-  port: ""
-  clientId: ""
-  basePath: ""
-  path: ""
-  method: "POST"
-
